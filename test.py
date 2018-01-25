@@ -35,6 +35,7 @@ class State:
                 if x == -1 and key in range(0, self.tsize, self.nsize):
                     continue
                 valid.append(x)
+        print valid
         return valid
 
     def expand(self, st):

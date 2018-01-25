@@ -23,9 +23,18 @@ class bcolors:
 def printtab(tab):
     largeur = int(sqrt(len(tab)))
     longueur = int(len(tab))
-    """Print the list in a Matrix Format."""
+    # """Print the list in a Matrix Format."""
     for (index, value) in enumerate(tab):
-        print bcolors.ONE + ' %s ' % value,
+        if value == 0:
+            print bcolors.FIVE + ' %s' % value,
+        elif value <= 9:
+            print bcolors.ONE + ' %s' % value,
+        elif value <= 19:
+            print bcolors.TWO + '%s' % value,
+        elif value <= 29:
+            print bcolors.THREE + '%s' % value,
+        else:
+            print bcolors.FOUR + '%s' % value,
         if index in [x for x in range(largeur - 1, longueur, largeur)]:
             print
     print bcolors.ENDC
@@ -47,7 +56,7 @@ def my_resolvable(list):
         for j in range(i + 1, len(list)):
             if(list[j] > list[i] and list[j] and list[i]):
                 nb_inv += 1
-    if (nb_inv % 2 == 0):
+    if (nb_inv % 2 == 1):
         sys.stdout.write('Un')
     print("solvable : " + str(nb_inv))
     return (nb_inv % 2)
@@ -60,7 +69,6 @@ def get_puzzle(nb):
     (output, err) = p.communicate()
     ## Wait for cmd to terminate. Get return returncode ##
     p_status = p.wait()
-
     # find if solvable
     count = 0
     s = ""
@@ -111,9 +119,10 @@ def getvalue(tab, key):
             if x == -1 and key in range(0, longueur, taillecarre):
                 continue
             valid.append(x)
+    # print valid
     return valid
 
-# list of next possible state
+# list of next possible states
 def expand(tab):
     expands = {}
     longueur = len(tab)
@@ -131,15 +140,13 @@ def expand(tab):
     # print expstat
     return expstat
 
-
-    # """Choose one of the possible states."""     # possibilite de prendre le 1er
-
+# """Choose one of the possible states."""     # possibilite de prendre le 1er
 def one_of_poss(tab):
-    # exp_sts = expand(tab)
-    # rand_st = random.choice(exp_sts)
-    # return rand_st
-    rand_st = exp_sts[0]
+    exp_sts = expand(tab)
+    rand_st = random.choice(exp_sts)
     return rand_st
+    # rand_st = exp_sts[0]
+    # return rand_st
 
     # """Determine the Start State of the Problem."""
 
@@ -159,21 +166,21 @@ def goal_reached(tab):
 
 def heuritstic(tab):
     exp_sts = expand(tab)
-    print expand(tab)
+    # print expand(tab)
     mdists = []
-    for grid in exp_sts:
-        mdists.append(distance(grid))
+    for tab in exp_sts:
+        mdists.append(distance(tab))
     mdists.sort()
     short_path = mdists[0]
     if mdists.count(short_path) > 1:
-        least_paths = [st for st in exp_sts if distance(grid) == short_path]
+        least_paths = [st for st in exp_sts if distance(tab) == short_path]
         return random.choice(least_paths)
         # print (least_paths)
         # return least_paths[0]
     else:
-        for grid in exp_sts:
-            if distance(grid) == short_path:
-                return grid
+        for tab in exp_sts:
+            if distance(tab) == short_path:
+                return tab
 
 def resolution(tab):
     while not goal_reached(tab):
@@ -182,7 +189,7 @@ def resolution(tab):
 
 
 if __name__ == '__main__':
-    print 'N-Puzzle\n' + 8 * '_'
+    print 'N-Puzzle\n' + 8 * '='
     # getiing puzzle grid
     if len(sys.argv) == 2:
         print sys.argv[1] #verifier que l'a bien un nobre superieur a 2
@@ -195,3 +202,11 @@ if __name__ == '__main__':
     goal = printspiral(spiral(int(sys.argv[1])))
     # expand(output)
     # resolution(output)
+    print 'The Starting State is:'
+    start = start_state(output, 5)
+    printtab(start)
+    print 'The Goal State should be:'
+    printtab(goal)
+    print 'Here it Goes:'
+    printtab(start)
+    resolution(start)
