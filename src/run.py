@@ -88,24 +88,18 @@ def get_puzzle(nb):
     # my_resolvable(tab)
     return tab
 # distance de manathan
-def distance(table):
+def distance(tab, goal):
     dist = 0
-    # tableau a changer par rapport a la normal n-puzzle
-    goal = range(1, int((len(table))))
-    goal.append(0)
-    # print goal
-    # printtab(goal)
-    # taille du table
-    nsize = int(sqrt(len(table)))
     # taille au carre
-
-    for node in table:
+    nsize = int(sqrt(len(tab)))
+    for node in tab:
         if node != 0:
-            gdist = abs(goal.index(node) - table.index(node))
+            gdist = abs(goal.index(node) - tab.index(node))
             jumps = gdist / nsize
             steps = gdist % nsize
             dist += jumps + steps
     return dist
+    
 # mouvements possibles
 def getvalue(tab, key):
     taillecarre = int(sqrt(len(tab)))
@@ -150,41 +144,41 @@ def one_of_poss(tab):
 
     # """Determine the Start State of the Problem."""
 
-def start_state(tab, seed = 1000):
-    goal = range(1, int((len(tab))))
-    goal.append(0)
+def start_state(tab, goal, seed = 1000):
+    # goal = range(1, int((len(tab))))
+    # goal.append(0)
     start_st = goal[:]
     for sts in range(seed):
         start_st = one_of_poss(start_st)
     return start_st
 
     # """Check if the Goal Reached or Not."""
-def goal_reached(tab):
-    goal = range(1, int((len(tab))))
-    goal.append(0)
+def goal_reached(tab, goal):
+    # goal = range(1, int((len(tab))))
+    # goal.append(0)
     return tab == goal
 
-def heuritstic(tab):
+def heuritstic(tab, goal):
     exp_sts = expand(tab)
     # print expand(tab)
     mdists = []
     for tab in exp_sts:
-        mdists.append(distance(tab))
+        mdists.append(distance(tab, goal))
     mdists.sort()
     short_path = mdists[0]
     if mdists.count(short_path) > 1:
-        least_paths = [st for st in exp_sts if distance(tab) == short_path]
+        least_paths = [st for st in exp_sts if distance(tab, goal) == short_path]
         return random.choice(least_paths)
         # print (least_paths)
         # return least_paths[0]
     else:
         for tab in exp_sts:
-            if distance(tab) == short_path:
+            if distance(tab, goal) == short_path:
                 return tab
 
-def resolution(tab):
-    while not goal_reached(tab):
-        tab = heuritstic(tab)
+def resolution(tab, goal):
+    while not goal_reached(tab, goal):
+        tab = heuritstic(tab, goal)
         printtab(tab)
 
 
@@ -197,16 +191,16 @@ if __name__ == '__main__':
     print 'Number of arguments:', len(sys.argv), 'arguments.'
     # print 'Argument List:', str(sys.argv)
     output = get_puzzle(sys.argv[1])
-    distance(output)
     printtab(output)
     goal = printspiral(spiral(int(sys.argv[1])))
+    # distance(output, goal)
     # expand(output)
     # resolution(output)
     print 'The Starting State is:'
-    start = start_state(output, 5)
+    start = start_state(output, goal, 5)
     printtab(start)
     print 'The Goal State should be:'
     printtab(goal)
     print 'Here it Goes:'
     printtab(start)
-    resolution(start)
+    resolution(start, goal)
