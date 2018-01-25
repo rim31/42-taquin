@@ -38,17 +38,7 @@ def printtab(tab):
         if index in [x for x in range(largeur - 1, longueur, largeur)]:
             print
     print bcolors.ENDC
-# def resolvable(list):
-#     nb_inv = 0
-#     print(list)
-#     for i in range(0, len(list)):
-#         for j in range(i + 1, len(list)):
-#             if(list[j] > list[i] and list[j] and list[i]):
-#                 nb_inv += 1
-#     if (nb_inv % 2 == 1):
-#         sys.stdout.write('Un')
-#     print("solvable : nb d'inversion " + str(nb_inv))
-# //alogo pour savoir sion on a bien un nombre pair de permutation pour savoir si c'est resolvable
+
 def my_resolvable(list):
     nb_inv = 0
     print(list)
@@ -56,8 +46,14 @@ def my_resolvable(list):
         for j in range(i + 1, len(list)):
             if(list[j] > list[i] and list[j] and list[i]):
                 nb_inv += 1
-    if (nb_inv % 2 == 1):
-        sys.stdout.write('Un')
+    if (int(sqrt(len(list))) % 2 == 0):
+        if (nb_inv % 2 == 1):
+            sys.stdout.write('Unsolvable')
+            sys.exit()
+    else:
+        if (nb_inv % 2 == 0):
+            sys.stdout.write('Unsolvable')
+            sys.exit()
     print("solvable : " + str(nb_inv))
     return (nb_inv % 2)
 
@@ -99,7 +95,7 @@ def distance(tab, goal):
             steps = gdist % nsize
             dist += jumps + steps
     return dist
-    
+
 # mouvements possibles
 def getvalue(tab, key):
     taillecarre = int(sqrt(len(tab)))
@@ -139,15 +135,14 @@ def one_of_poss(tab):
     exp_sts = expand(tab)
     rand_st = random.choice(exp_sts)
     return rand_st
-    # rand_st = exp_sts[0]
-    # return rand_st
-
     # """Determine the Start State of the Problem."""
 
 def start_state(tab, goal, seed = 1000):
     # goal = range(1, int((len(tab))))
     # goal.append(0)
     start_st = goal[:]
+    print "+++++++++++"
+    # print start_st
     for sts in range(seed):
         start_st = one_of_poss(start_st)
     return start_st
@@ -181,26 +176,22 @@ def resolution(tab, goal):
         tab = heuritstic(tab, goal)
         printtab(tab)
 
-
 if __name__ == '__main__':
-    print 'N-Puzzle\n' + 8 * '='
-    # getiing puzzle grid
+    sys.stdout.write('N-Puzzle x ')
     if len(sys.argv) == 2:
         print sys.argv[1] #verifier que l'a bien un nobre superieur a 2
-
-    print 'Number of arguments:', len(sys.argv), 'arguments.'
-    # print 'Argument List:', str(sys.argv)
+    print 12 * '='
     output = get_puzzle(sys.argv[1])
-    printtab(output)
+    # printtab(output)
     goal = printspiral(spiral(int(sys.argv[1])))
-    # distance(output, goal)
-    # expand(output)
-    # resolution(output)
-    print 'The Starting State is:'
-    start = start_state(output, goal, 5)
-    printtab(start)
     print 'The Goal State should be:'
     printtab(goal)
+
+    print 'The Starting State is:'
+    # start = start_state(output, goal, 5)
+    start = output
+    printtab(output)
+    # printtab(start)
     print 'Here it Goes:'
-    printtab(start)
-    resolution(start, goal)
+    # resolution(start, goal)
+    resolution(output, goal)
