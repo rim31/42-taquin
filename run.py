@@ -119,7 +119,8 @@ def expand(tab):
     moves = expands[pos]
     expstat = []
     for mv in moves:
-        nstate = tab[:]
+        nstate = tab[:]# Affiche toutes les occurences
+        print nstate
         (nstate[pos + mv], nstate[pos]) = (nstate[pos], nstate[pos + mv])
         expstat.append(nstate)
     return expstat
