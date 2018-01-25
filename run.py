@@ -3,7 +3,29 @@
 import subprocess
 import commands
 import sys
+from math import sqrt
 
+class bcolors:
+    ONE = '\033[95m'
+    TWO = '\033[94m'
+    THREE = '\033[92m'
+    FOUR = '\033[93m'
+    FIVE = '\033[91m'
+    SIX = '\033[0m'
+    SEVEN = '\033[1m'
+    EIGHT = '\033[4m'
+    NINE = '\033[96m'
+    ENDC = '\033[0m'
+
+def printtab(tab):
+    largeur = int(sqrt(len(tab)))
+    longueur = int(len(tab))
+    """Print the list in a Matrix Format."""
+    for (index, value) in enumerate(tab):
+        print bcolors.ONE + ' %s ' % value,
+        if index in [x for x in range(largeur - 1, longueur, largeur)]:
+            print
+    print bcolors.ENDC
 # def resolvable(list):
 #     nb_inv = 0
 #     print(list)
@@ -14,7 +36,7 @@ import sys
 #     if (nb_inv % 2 == 1):
 #         sys.stdout.write('Un')
 #     print("solvable : nb d'inversion " + str(nb_inv))
-
+# //alogo pour savoir sion on a bien un nombre pair de permutation pour savoir si c'est resolvable
 def my_resolvable(list):
     nb_inv = 0
     print(list)
@@ -44,25 +66,84 @@ def get_puzzle(nb):
             sys.stdout.write(line)
         if (count > 2):
             s += str(line) + " "
-    print s.split()
+
+    tab = []
+    tab = s.split()
     my_resolvable(s.split())
-    return s.split()
+    tab = map(int, tab)
+    print tab
+    # my_resolvable(tab)
+    return tab
+
+# distance de manathan
+def distance(table):
+    dist = 0
+    # tableau a changer par rapport a la normal n-puzzle
+    goal = range(1, int((len(table))))
+    goal.append(0)
+    print goal
+    printtab(goal)
+    # taille du table
+    nsize = int(sqrt(len(table)))
+    # taille au carre
+
+    for node in table:
+        if node != 0:
+            gdist = abs(goal.index(node) - table.index(node))
+            jumps = gdist / nsize
+            steps = gdist % nsize
+            dist += jumps + steps
+    return dist
+
+# mouvements possibles
+def getvalue(tab, key):
+    nsize = int(sqrt(len(tab)))
+    tsize = int(len(tab))
+    values = [1, -1, nsize, -nsize]
+    valid = []
+    for x in values:
+        if 0 <= key + x < tsize:
+            if x == 1 and key in range(nsize - 1, tsize, nsize):
+                continue
+            if x == -1 and key in range(0, tsize, nsize):
+                continue
+            valid.append(x)
+    return valid
+
+# list of next possible state
+def expand(tab):
+    expands = {}
+    for key in range(len(tab)):
+        expands[key] = getvalue(tab, key)
+    pos = tab.index(0)
+    moves = expands[pos]
+    expstat = []
+    for mv in moves:
+        nstate = tab[:]
+        (nstate[pos + mv], nstate[pos]) = (nstate[pos], nstate[pos + mv])
+        expstat.append(nstate)
+    return expstat
+
+# def heuritstic(tab, dist)
+#     exp_sts = self.expand(st)
+#     mdists = []
+#     for st in exp_sts:
+#         mdists.append(self.manhattan_distance(st))
+#     mdists.sort()
+#     short_path = mdists[0]
+#     if mdists.count(short_path) > 1:
+#         least_paths = [st for st in exp_sts if self.manhattan_distance(st) == short_path]
+#         return random.choice(least_paths)
+#     else:
+#         for st in exp_sts:
+#             if self.manhattan_distance(st) == short_path:
+#                 return st
+
 
 if __name__ == '__main__':
-    print 'N-Puzzle'
-    print 8 * '_'
-    # print 'getting generator'
-    # resolvable([1, 2, 3, 4, 5, 6, 8, 7])
-    # resolvable([5, 2, 8, 4, 1, 7, 3, 6])
-    # resolvable([1, 8, 2, 0, 4, 3, 7, 6, 5])
-
-    # print 'from generator'
-    # print 'RESOLVABLE'
-    # my_resolvable([5, 7, 3, 8, 0, 6, 1, 4, 2])
-    # print 'PAS RESOLVABLE'
-    # my_resolvable([7, 1, 8, 3, 5, 6, 0, 2, 4])
-    # print 'PAS RESOLVABLE'
-    # my_resolvable([ 6, 3, 11, 4, 7, 8, 1, 2, 14, 10, 12, 5, 0, 13, 9, 15])
-
+    print 'N-Puzzle\n' + 8 * '_'
     # getiing puzzle grid
-    output = get_puzzle(4)
+    output = get_puzzle(3)
+    distance(output)
+    printtab(output)
+    expand(output)

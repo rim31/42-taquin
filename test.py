@@ -16,11 +16,11 @@ class State:
         """Print the list in a Matrix Format."""
 
         for (index, value) in enumerate(st):
-            print ' %s ' % value, 
-            if index in [x for x in range(self.nsize - 1, self.tsize, 
+            print ' %s ' % value,
+            if index in [x for x in range(self.nsize - 1, self.tsize,
                          self.nsize)]:
-                print 
-        print 
+                print
+        print
 
     def getvalues(self, key):
         """Utility function to gather the Free Motions at various key positions in the Matrix."""
@@ -29,7 +29,7 @@ class State:
         valid = []
         for x in values:
             if 0 <= key + x < self.tsize:
-                if x == 1 and key in range(self.nsize - 1, self.tsize, 
+                if x == 1 and key in range(self.nsize - 1, self.tsize,
                         self.nsize):
                     continue
                 if x == -1 and key in range(0, self.tsize, self.nsize):
@@ -48,7 +48,7 @@ class State:
         expstates = []
         for mv in moves:
             nstate = st[:]
-            (nstate[pos + mv], nstate[pos]) = (nstate[pos], nstate[pos + 
+            (nstate[pos + mv], nstate[pos]) = (nstate[pos], nstate[pos +
                     mv])
             expstates.append(nstate)
         return expstates
@@ -82,12 +82,12 @@ class State:
         for node in st:
             if node != 0:
                 gdist = abs(self.goal.index(node) - st.index(node))
-                (jumps, steps) = (gdist // self.nsize, gdist % self.nsize)
+                (jumps, steps) = (gdist / self.nsize, gdist % self.nsize)
                 mdist += jumps + steps
         return mdist
 
     def huristic_next_state(self, st):
-        """This is the Huristic Function. It determines the next state to follow and uses Mahattan distances method as the huristics. This this determined way, a A* approach for path finding is used. 
+        """This is the Huristic Function. It determines the next state to follow and uses Mahattan distances method as the huristics. This this determined way, a A* approach for path finding is used.
 If more than one path have same manhattan distance, then a random choice of one of them is analyzed and carried forward. If not best path, randomness to providethe other choice is relied upon. No Depth First search is Used."""
 
         exp_sts = self.expand(st)
