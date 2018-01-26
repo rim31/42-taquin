@@ -23,23 +23,22 @@ class bcolors:
 def printtab(tab):
     largeur = int(sqrt(len(tab)))
     longueur = int(len(tab))
-    """Print the list in a Matrix Format."""
+    # """Print the list in a Matrix Format."""
     for (index, value) in enumerate(tab):
-        print bcolors.ONE + ' %s ' % value,
+        if value == 0:
+            print bcolors.FIVE + ' %s' % value,
+        elif value <= 9:
+            print bcolors.ONE + ' %s' % value,
+        elif value <= 19:
+            print bcolors.TWO + '%s' % value,
+        elif value <= 29:
+            print bcolors.THREE + '%s' % value,
+        else:
+            print bcolors.FOUR + '%s' % value,
         if index in [x for x in range(largeur - 1, longueur, largeur)]:
             print
     print bcolors.ENDC
-# def resolvable(list):
-#     nb_inv = 0
-#     print(list)
-#     for i in range(0, len(list)):
-#         for j in range(i + 1, len(list)):
-#             if(list[j] > list[i] and list[j] and list[i]):
-#                 nb_inv += 1
-#     if (nb_inv % 2 == 1):
-#         sys.stdout.write('Un')
-#     print("solvable : nb d'inversion " + str(nb_inv))
-# //alogo pour savoir sion on a bien un nombre pair de permutation pour savoir si c'est resolvable
+
 def my_resolvable(list):
     nb_inv = 0
     print(list)
@@ -47,8 +46,14 @@ def my_resolvable(list):
         for j in range(i + 1, len(list)):
             if(list[j] > list[i] and list[j] and list[i]):
                 nb_inv += 1
-    if (nb_inv % 2 == 0):
-        sys.stdout.write('Un')
+    if (int(sqrt(len(list))) % 2 == 0):
+        if (nb_inv % 2 == 1):
+            sys.stdout.write('Unsolvable')
+            sys.exit()
+    else:
+        if (nb_inv % 2 == 0):
+            sys.stdout.write('Unsolvable')
+            sys.exit()
     print("solvable : " + str(nb_inv))
     return (nb_inv % 2)
 
@@ -60,7 +65,6 @@ def get_puzzle(nb):
     (output, err) = p.communicate()
     ## Wait for cmd to terminate. Get return returncode ##
     p_status = p.wait()
-
     # find if solvable
     count = 0
     s = ""
@@ -80,24 +84,21 @@ def get_puzzle(nb):
     # my_resolvable(tab)
     return tab
 # distance de manathan
-def distance(table):
+def distance(tab, goal):
     dist = 0
-    # tableau a changer par rapport a la normal n-puzzle
-    goal = range(1, int((len(table))))
-    goal.append(0)
-    # print goal
-    # printtab(goal)
-    # taille du table
-    nsize = int(sqrt(len(table)))
     # taille au carre
-
-    for node in table:
+    nsize = int(sqrt(len(tab)))
+    for node in tab:
         if node != 0:
-            gdist = abs(goal.index(node) - table.index(node))
-            jumps = gdist / nsize
+            gdist = abs(goal.index(node) - tab.index(node))
+            jumps = gdist // nsize
             steps = gdist % nsize
             dist += jumps + steps
+    # mdist = sum(abs((node-1)%nsize - i%nsize) + abs((node-1)//nsize - i//nsize)
+    # for i, node in enumerate(tab) if node)
+    # # print mdist
     return dist
+
 # mouvements possibles
 def getvalue(tab, key):
     taillecarre = int(sqrt(len(tab)))
@@ -111,10 +112,10 @@ def getvalue(tab, key):
             if x == -1 and key in range(0, longueur, taillecarre):
                 continue
             valid.append(x)
-    print valid
+    # print valid
     return valid
 
-# liste des prochains etat possibles
+# list of next possible states
 def expand(tab):
     expands = {}
     longueur = len(tab)
@@ -132,67 +133,65 @@ def expand(tab):
     # print expstat
     return expstat
 
-
-    # """Choose one of the possible states."""     # possibilite de prendre le 1er
-
-def one_of_poss(tab):
-    # exp_sts = expand(tab)
-    # rand_st = random.choice(exp_sts)
-    # return rand_st
-    rand_st = exp_sts[0]
-    return rand_st
-
-    # """Determine the Start State of the Problem."""
-
-def start_state(tab, seed = 1000):
-    goal = range(1, int((len(tab))))
-    goal.append(0)
-    start_st = goal[:]
-    for sts in range(seed):
-        start_st = one_of_poss(start_st)
-    return start_st
-
     # """Check if the Goal Reached or Not."""
-def goal_reached(tab):
-    goal = range(1, int((len(tab))))
-    goal.append(0)
-    return tab == goal
 
-def heuritstic(tab):
-    exp_sts = expand(tab)
-    print expand(tab)
-    mdists = []
-    for grid in exp_sts:
-        mdists.append(distance(grid))
-    mdists.sort()
-    short_path = mdists[0]
-    if mdists.count(short_path) > 1:
-        least_paths = [st for st in exp_sts if distance(grid) == short_path]
-        return random.choice(least_paths)
-        # print (least_paths)
-        # return least_paths[0]
-    else:
-        for grid in exp_sts:
-            if distance(grid) == short_path:
-                return grid
+# def goal_reached(tab, goal):
+#     # goal = range(1, int((len(tab))))
+#     # goal.append(0)
+#     return tab == goal
+#
+# def heuritstic(tab, goal):
+#     exp_sts = expand(tab)
+#     mdists = []
+#     for tab in exp_sts:
+#         mdists.append(distance(tab, goal))
+#     mdists.sort()
+#     short_path = mdists[0]
+#     if mdists.count(short_path) > 1:
+#         least_paths = [tab for tab in exp_sts if distance(tab, goal) == short_path]
+#         # for grid in least_paths:
+#             # return heuritstic(grid,goal)
+#         return least_paths[0]
+#         # return random.choice(least_paths)
+#     else:
+#         for tab in exp_sts:
+#             if distance(tab, goal) == short_path:
+#                 return tab
+#
+# def resolution(tab, goal):
+#     while tab != goal:
+#         tab = heuritstic(tab, goal)
+#         printtab(tab)
 
-def resolution(tab):
-    while not goal_reached(tab):
-        tab = heuritstic(tab)
+def solve(tab, goal):
+    while tab != goal:
         printtab(tab)
-
+        exp_sts = expand(tab)
+        print exp_sts
+        for tab in exp_sts:
+            print distance(tab, goal)
+            printtab(tab)
+            # solve(tab, goal)
+        raw_input("Press Enter to continue...")
+    printtab(tab)
 
 if __name__ == '__main__':
-    print 'N-Puzzle\n' + 8 * '_'
-    # getiing puzzle grid
+    sys.stdout.write('N-Puzzle x ')
     if len(sys.argv) == 2:
         print sys.argv[1] #verifier que l'a bien un nobre superieur a 2
-
-    print 'Number of arguments:', len(sys.argv), 'arguments.'
-    # print 'Argument List:', str(sys.argv)
+    print 12 * '='
     output = get_puzzle(sys.argv[1])
-    distance(output)
-    printtab(output)
+    # printtab(output)
     goal = printspiral(spiral(int(sys.argv[1])))
-    expand(output)
-    # resolution(output)
+    print 'The Goal State should be:'
+    printtab(goal)
+
+    print 'The Starting State is:'
+    # start = start_state(output, goal, 5)
+    start = output
+    printtab(output)
+    # printtab(start)
+    print 'Here it Goes:'
+    # resolution(start, goal)
+    # resolution(output, goal)
+    solve(output, goal)
