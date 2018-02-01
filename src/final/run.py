@@ -150,7 +150,7 @@ def expand(tab):
 
 
 
-def solve(graph, tab, goal, gen):
+def solve(graph, tab, goal, gen, solution):
     while tab != goal:
         gen += 1
         printtab(tab)   #print
@@ -172,7 +172,7 @@ def solve(graph, tab, goal, gen):
             # ASSERT
         raw_input("Press Enter to continue...")
         tab = exp_sts[minidist.index(min(minidist))]
-        solve(graph, tab, goal, gen)
+        solve(graph, tab, goal, gen, solution)
     printtab(tab)
 
 if __name__ == '__main__':
@@ -195,4 +195,5 @@ if __name__ == '__main__':
     # resolution(start, goal)
     # resolution(output, goal)
     graph = []
-    solve(graph, output, goal, 0)
+    solution = []
+    solve(graph, output, goal, 0, solution)
