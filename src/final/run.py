@@ -135,45 +135,55 @@ def expand(tab):
 
     # """Check if the Goal Reached or Not."""
 
-# def __init__(self, name):
-#     self.nnmove = []
-#     self.mandist = []
-#     self.graph = {}
-#     self.oldway = {}
-# def generate_edges(graph):
-#     edges = []
-#     for node in graph:
-#         for neighbour in graph[node]:
-#             edges.append((node, neighbour))
-#     return edges
-# print(generate_edges(graph))
+    # solution    = [tab, tab1, ]
+    # = [tab, tab1, tab2 ]
+    # = [tab, tab1, tab2 ... tabspiral]
+def already_use(exp_sts, solution):
 
+    # print bcolors.NINE + "LIST [solution]"
+    # for tab in solution:
+    #     printtab(tab)
+    # print bcolors.ENDC
+    for tab in exp_sts:
+        try:
+            response = solution.index(tab)
+            print "deja la"
+            # print response
+        except ValueError:
+            print "autre choix"
+            solution.append(tab)
+            return (tab, solution)
+    print "Mauvais chemin"
+    return None
 
-
-def solve(graph, tab, goal, gen, solution):
+def solve(graph, tab, goal, gen, solutions, init):
     while tab != goal:
         gen += 1
         printtab(tab)   #print
         exp_sts = expand(tab)
         print exp_sts
-        i = 0
         minidist = []
         for tab in exp_sts:
-            minidist.append(distance(tab, goal) + gen)
-            # print(mini)
-            i += 1
-            printtab(tab)
-            print (distance(tab, goal) + gen)
+            # printtab(tab)
+            # print (distance(tab, goal) + gen)
             graph.append((tab, distance(tab, goal), gen))
-            print (graph)
+            # print (graph)
             graph.sort(key=lambda tup: tup[1])
-            print(graph)
-            # solve(tab, goal)
-            # ASSERT
+            # print(graph)
+            if (distance(tab, goal) == 0):
+                print "GOAL"
+                break
         raw_input("Press Enter to continue...")
-        tab = exp_sts[minidist.index(min(minidist))]
-        solve(graph, tab, goal, gen, solution)
-    printtab(tab)
+        if not (already_use(exp_sts, solution)):
+            # print already_use(exp_sts, solution)
+            solution.append(tab);
+            solve(graph, tab, goal, gen, solutions, init)
+        else:
+            print "UNSOLVABLE"
+            # for tab in solution:
+            #     printtab(tab)
+    for tab in solution:
+        printtab(tab)
 
 if __name__ == '__main__':
     sys.stdout.write('N-Puzzle x ')
@@ -196,4 +206,5 @@ if __name__ == '__main__':
     # resolution(output, goal)
     graph = []
     solution = []
-    solve(graph, output, goal, 0, solution)
+    solutions = []
+    solve(graph, output, goal, 0, solutions, output)
