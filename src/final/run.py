@@ -166,7 +166,8 @@ def solve(graph, tab, goal, gen):
             print (distance(tab, goal) + gen)
             graph.append((tab, distance(tab, goal), gen))
             print (graph)
-            print(graph.sort(key=lambda x: 1, reverse=True))
+            graph.sort(key=lambda tup: tup[1])
+            print(graph)
             # solve(tab, goal)
             # ASSERT
         raw_input("Press Enter to continue...")
