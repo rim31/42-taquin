@@ -94,10 +94,10 @@ def distance(tab, goal):
             jumps = gdist // nsize
             steps = gdist % nsize
             dist += jumps + steps
-    # mdist = sum(abs((node-1)%nsize - i%nsize) + abs((node-1)//nsize - i//nsize)
-    # for i, node in enumerate(tab) if node)
-    # # print mdist
-    return dist
+    mdist = sum(abs((node-1)%nsize - i%nsize) + abs((node-1)//nsize - i//nsize)
+    for i, node in enumerate(tab) if node)
+    # print mdist
+    return mdist
 
 # mouvements possibles
 def getvalue(tab, key):
@@ -135,44 +135,43 @@ def expand(tab):
 
     # """Check if the Goal Reached or Not."""
 
-# def goal_reached(tab, goal):
-#     # goal = range(1, int((len(tab))))
-#     # goal.append(0)
-#     return tab == goal
-#
-# def heuritstic(tab, goal):
-#     exp_sts = expand(tab)
-#     mdists = []
-#     for tab in exp_sts:
-#         mdists.append(distance(tab, goal))
-#     mdists.sort()
-#     short_path = mdists[0]
-#     if mdists.count(short_path) > 1:
-#         least_paths = [tab for tab in exp_sts if distance(tab, goal) == short_path]
-#         # for grid in least_paths:
-#             # return heuritstic(grid,goal)
-#         return least_paths[0]
-#         # return random.choice(least_paths)
-#     else:
-#         for tab in exp_sts:
-#             if distance(tab, goal) == short_path:
-#                 return tab
-#
-# def resolution(tab, goal):
-#     while tab != goal:
-#         tab = heuritstic(tab, goal)
-#         printtab(tab)
+# def __init__(self, name):
+#     self.nnmove = []
+#     self.mandist = []
+#     self.graph = {}
+#     self.oldway = {}
+# def generate_edges(graph):
+#     edges = []
+#     for node in graph:
+#         for neighbour in graph[node]:
+#             edges.append((node, neighbour))
+#     return edges
+# print(generate_edges(graph))
 
-def solve(tab, goal):
+
+
+def solve(graph, tab, goal, gen):
     while tab != goal:
-        printtab(tab)
+        gen += 1
+        printtab(tab)   #print
         exp_sts = expand(tab)
         print exp_sts
+        i = 0
+        minidist = []
         for tab in exp_sts:
-            print distance(tab, goal)
+            minidist.append(distance(tab, goal) + gen)
+            # print(mini)
+            i += 1
             printtab(tab)
+            print (distance(tab, goal) + gen)
+            graph.append((tab, distance(tab, goal), gen))
+            print (graph)
+            print(graph.sort(key=lambda x: 1, reverse=True))
             # solve(tab, goal)
+            # ASSERT
         raw_input("Press Enter to continue...")
+        tab = exp_sts[minidist.index(min(minidist))]
+        solve(graph, tab, goal, gen)
     printtab(tab)
 
 if __name__ == '__main__':
@@ -194,4 +193,5 @@ if __name__ == '__main__':
     print 'Here it Goes:'
     # resolution(start, goal)
     # resolution(output, goal)
-    solve(output, goal)
+    graph = []
+    solve(graph, output, goal, 0)
