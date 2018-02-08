@@ -13,6 +13,7 @@ class Node:
 		 # search depth of current instance
 		self.depth = 0
 		self.order = None
+		self.parent = None
 		self.adj_matrix = []
 		# self.H = 0
 		# self.G = 0
@@ -73,6 +74,12 @@ def distance(tab, goal):
     # print mdist
     return mdist
 
+def search_grid_in_set(grid, listset):
+	for elem in listset:
+		if elem.grid == grid:
+			return True
+	return False
+
 def aStar(start, goal):
 	openset = set()
 	closedset = set()
@@ -98,31 +105,32 @@ def aStar(start, goal):
 		closedset.add(current)
 		# print(children(current, goal))
 		for node in children(current, goal):
-			print('---')
-			print(node.grid)
-			print('---')
-			if node in closedset:
-				print('closedset')
+			# print('---')
+			# print(node.grid)
+			# print('---')
+			if search_grid_in_set(node.grid, closedset):
+			# if node.grid in closedset:
+				# print('closedset')
 				continue
-			if node in openset:
-				print('Correct the depth')
+			if search_grid_in_set(node, openset):
+				# print('Correct the depth')
 				new_depth = current.depth + 1
 				if node.depth > new_depth:
 					node.depth = new_depth
 					node.parent = current
 			else:
-				print('else')
+				# print('else')
 				node.depth = current.depth + 1
 				node.value = distance(current.grid, goal)
 				node.parent = current
 				openset.add(node)
-		print('openset')
-		for elem in openset:
-			print(elem.grid)
-		print('closedset')
-		for elem in closedset:
-			print(elem.grid)
-		raw_input("Press Enter to continue...")
+		# print('openset')
+		# for elem in openset:
+		# 	print(elem.grid)
+		# print('closedset')
+		# for elem in closedset:
+		# 	print(elem.grid)
+		# raw_input("Press Enter to continue...")
 	raise ValueError('No Path Found')
 
 
@@ -142,3 +150,7 @@ if __name__ == '__main__':
 	print 'Here it Goes:'
 	# resolution(start, goal)
 	path = aStar(start, goal)
+	print('Finish')
+	for elem in path:
+		print(elem.grid)
+	# print(path)
