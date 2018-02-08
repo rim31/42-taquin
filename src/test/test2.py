@@ -89,10 +89,10 @@ def aStar(start, goal):
 	openset.add(current)
 	while openset:
 		current = min(openset, key=lambda o:o.depth + o.value)
-		print('current')
-		print(current.grid)
-		print('depth ' + str(current.depth))
-		print('value ' + str(current.value))
+		# print('current')
+		# print(current.grid)
+		# print('depth ' + str(current.depth))
+		# print('value ' + str(current.value))
 		print('sum ' + str(current.depth + current.value))
 		if current.grid == goal:
 			path = []
@@ -152,5 +152,5 @@ if __name__ == '__main__':
 	path = aStar(start, goal)
 	print('Finish')
 	for elem in path:
-		print(elem.grid)
+		printtab(elem.grid)
 	# print(path)
