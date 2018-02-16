@@ -46,17 +46,23 @@ def children(current, goal):
 	moves = expands[pos]
 	# print moves
 	expstat = []
+	children = []
+	print('_____Children_____')
 	for mv in moves:
 		nstate = current.grid[:]# Affiche toutes les occurences
-		# print nstate
+		# printtab(nstate)
 		(nstate[pos + mv], nstate[pos]) = (nstate[pos], nstate[pos + mv])
 		expstat.append(nstate)
-	children = []
-	for elem in expstat:
-		child = Node(elem)
+		child = Node(nstate)
 		child.value = distance(child.grid, goal)
 		child.depth = current.depth + 1
-		children.append(Node(elem))
+		children.append(Node(nstate))
+	# for elem in expstat:
+	# 	child = Node(elem)
+	# 	child.value = distance(child.grid, goal)
+	# 	child.depth = current.depth + 1
+	# 	children.append(Node(elem))
+		printtab(child.grid)
 	return children
 
 def distance(tab, goal):
@@ -66,13 +72,10 @@ def distance(tab, goal):
     for node in tab:
         if node != 0:
             gdist = abs(goal.index(node) - tab.index(node))
-            jumps = gdist // nsize
+            jumps = gdist / nsize
             steps = gdist % nsize
             dist += jumps + steps
-    mdist = sum(abs((node-1)%nsize - i%nsize) + abs((node-1)//nsize - i//nsize)
-    for i, node in enumerate(tab) if node)
-    # print mdist
-    return mdist
+    return dist
 
 def search_grid_in_set(grid, listset):
 	for elem in listset:
@@ -103,11 +106,14 @@ def aStar(start, goal):
 			return path[::-1]
 		openset.remove(current)
 		closedset.add(current)
-		# print(children(current, goal))
+		# print('______________')
+		# # print(children(current, goal))
+		# print('-v-CURRENT-v-')
+		# # print(node.grid)
+		# printtab(current.grid)
+		# print('______________')
 		for node in children(current, goal):
-			# print('---')
-			# print(node.grid)
-			# print('---')
+			# printtab(node.grid)
 			if search_grid_in_set(node.grid, closedset):
 			# if node.grid in closedset:
 				# print('closedset')
