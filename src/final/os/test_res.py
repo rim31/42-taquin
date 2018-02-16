@@ -21,24 +21,24 @@ def my_resolvable(list):
     return (nb_inv % 2)
 
 def get_puzzle(nb):
-    # cmd = "python generator.py " + str(nb)
-    # p = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True)
-    # (output, err) = p.communicate()
-    # p_status = p.wait()
-    # count = 0
-    # s = ""
-    # for line in output.splitlines():
-    #     count = count + 1
-    #     if (count == 1):
-    #         sys.stdout.write(line)
-    #     if (count > 2):
-    #         s += str(line) + " "
-    # tab = []
-    # tab = s.split()
-    # if (my_resolvable(s.split()) == 1):
-    #     exit
-    # tab = map(int, tab)
-    tab = [1, 3, 4, 6, 7, 8, 0, 5, 2]
+    cmd = "python generator.py " + str(nb)
+    p = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True)
+    (output, err) = p.communicate()
+    p_status = p.wait()
+    count = 0
+    s = ""
+    for line in output.splitlines():
+        count = count + 1
+        if (count == 1):
+            sys.stdout.write(line)
+        if (count > 2):
+            s += str(line) + " "
+    tab = []
+    tab = s.split()
+    if (my_resolvable(s.split()) == 1):
+        exit
+    tab = map(int, tab)
+    # tab = [1, 3, 4, 6, 7, 8, 0, 5, 2]
     # tab = [7, 0, 14, 5, 2, 4, 6, 12, 8, 15, 13, 11, 9, 10, 3, 1]
     # tab = [10, 0, 9, 4, 5, 8, 1, 12, 13, 3, 2, 15, 11, 14, 6, 7]
     print tab

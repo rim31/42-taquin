@@ -5,8 +5,6 @@ from spiral import spiral, printspiral
 from test_res import get_puzzle
 from printtab import printtab
 
-import time
-
 class Node:
 	def __init__(self, grid):
 		self.grid = grid
@@ -82,14 +80,6 @@ def search_grid_in_set(grid, listset):
 			return True
 	return False
 
-def search_grid_in_set_and_remove(grid, listset):
-	for elem in listset:
-		if elem.grid == grid:
-			listset.remove(elem)
-			return elem
-	newNode = Node(grid)
-	return newNode
-
 def aStar(start, goal):
 	openset = set()
 	closedset = set()
@@ -99,6 +89,11 @@ def aStar(start, goal):
 	openset.add(current)
 	while openset:
 		current = min(openset, key=lambda o:o.depth + o.value)
+		# print('current')
+		# print(current.grid)
+		# print('depth ' + str(current.depth))
+		# print('value ' + str(current.value))
+		# print('sum ' + str(current.depth + current.value))
 		if current.grid == goal:
 			path = []
 			while current.parent:
@@ -108,33 +103,35 @@ def aStar(start, goal):
 			return path[::-1]
 		openset.remove(current)
 		closedset.add(current)
+		# print(children(current, goal))
 		for node in children(current, goal):
+			# print('---')
+			# print(node.grid)
+			# print('---')
 			if search_grid_in_set(node.grid, closedset):
+			# if node.grid in closedset:
+				# print('closedset')
 				continue
-			nodeListed = search_grid_in_set_and_remove(node.grid, openset)
-			if nodeListed.depth != 0:
+			if search_grid_in_set(node, openset):
+				# print('Correct the depth')
 				new_depth = current.depth + 1
-				if nodeListed.depth > new_depth:
-					nodeListed.depth = new_depth
-					nodeListed.parent = current
-					openset.add(nodeListed)
-				else:
-					openset.add(nodeListed)
+				if node.depth > new_depth:
+					node.depth = new_depth
+					node.parent = current
 			else:
+				# print('else')
 				node.depth = current.depth + 1
 				node.value = distance(current.grid, goal)
 				node.parent = current
 				openset.add(node)
 		# print('openset')
 		# for elem in openset:
-		# 	print(str(elem.grid) + " " + str(elem.depth) + " " + str(elem.value))
+		# 	print(elem.grid)
 		# print('closedset')
 		# for elem in closedset:
 		# 	print(elem.grid)
-		
+		# raw_input("Press Enter to continue...")
 	raise ValueError('No Path Found')
-
-
 
 
 if __name__ == '__main__':
