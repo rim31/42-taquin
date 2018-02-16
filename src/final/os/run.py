@@ -5,8 +5,6 @@ from spiral import spiral, printspiral
 from test_res import get_puzzle
 from printtab import printtab
 
-import time
-
 class Node:
 	def __init__(self, grid):
 		self.grid = grid
@@ -48,17 +46,23 @@ def children(current, goal):
 	moves = expands[pos]
 	# print moves
 	expstat = []
+	children = []
+	print('_____Children_____')
 	for mv in moves:
 		nstate = current.grid[:]# Affiche toutes les occurences
-		# print nstate
+		# printtab(nstate)
 		(nstate[pos + mv], nstate[pos]) = (nstate[pos], nstate[pos + mv])
 		expstat.append(nstate)
-	children = []
-	for elem in expstat:
-		child = Node(elem)
+		child = Node(nstate)
 		child.value = distance(child.grid, goal)
 		child.depth = current.depth + 1
-		children.append(Node(elem))
+		children.append(Node(nstate))
+	# for elem in expstat:
+	# 	child = Node(elem)
+	# 	child.value = distance(child.grid, goal)
+	# 	child.depth = current.depth + 1
+	# 	children.append(Node(elem))
+		printtab(child.grid)
 	return children
 
 def distance(tab, goal):
@@ -68,27 +72,16 @@ def distance(tab, goal):
     for node in tab:
         if node != 0:
             gdist = abs(goal.index(node) - tab.index(node))
-            jumps = gdist // nsize
+            jumps = gdist / nsize
             steps = gdist % nsize
             dist += jumps + steps
-    mdist = sum(abs((node-1)%nsize - i%nsize) + abs((node-1)//nsize - i//nsize)
-    for i, node in enumerate(tab) if node)
-    # print mdist
-    return mdist
+    return dist
 
 def search_grid_in_set(grid, listset):
 	for elem in listset:
 		if elem.grid == grid:
 			return True
 	return False
-
-def search_grid_in_set_and_remove(grid, listset):
-	for elem in listset:
-		if elem.grid == grid:
-			listset.remove(elem)
-			return elem
-	newNode = Node(grid)
-	return newNode
 
 def aStar(start, goal):
 	openset = set()
@@ -99,6 +92,11 @@ def aStar(start, goal):
 	openset.add(current)
 	while openset:
 		current = min(openset, key=lambda o:o.depth + o.value)
+		# print('current')
+		# print(current.grid)
+		# print('depth ' + str(current.depth))
+		# print('value ' + str(current.value))
+		# print('sum ' + str(current.depth + current.value))
 		if current.grid == goal:
 			path = []
 			while current.parent:
@@ -108,33 +106,38 @@ def aStar(start, goal):
 			return path[::-1]
 		openset.remove(current)
 		closedset.add(current)
+		# print('______________')
+		# # print(children(current, goal))
+		# print('-v-CURRENT-v-')
+		# # print(node.grid)
+		# printtab(current.grid)
+		# print('______________')
 		for node in children(current, goal):
+			# printtab(node.grid)
 			if search_grid_in_set(node.grid, closedset):
+			# if node.grid in closedset:
+				# print('closedset')
 				continue
-			nodeListed = search_grid_in_set_and_remove(node.grid, openset)
-			if nodeListed.depth != 0:
+			if search_grid_in_set(node, openset):
+				# print('Correct the depth')
 				new_depth = current.depth + 1
-				if nodeListed.depth > new_depth:
-					nodeListed.depth = new_depth
-					nodeListed.parent = current
-					openset.add(nodeListed)
-				else:
-					openset.add(nodeListed)
+				if node.depth > new_depth:
+					node.depth = new_depth
+					node.parent = current
 			else:
+				# print('else')
 				node.depth = current.depth + 1
 				node.value = distance(current.grid, goal)
 				node.parent = current
 				openset.add(node)
 		# print('openset')
 		# for elem in openset:
-		# 	print(str(elem.grid) + " " + str(elem.depth) + " " + str(elem.value))
+		# 	print(elem.grid)
 		# print('closedset')
 		# for elem in closedset:
 		# 	print(elem.grid)
-		
+		# raw_input("Press Enter to continue...")
 	raise ValueError('No Path Found')
-
-
 
 
 if __name__ == '__main__':
