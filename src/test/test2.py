@@ -92,8 +92,8 @@ def distance(tab, goal):
 def search_grid_in_set(grid, listset):
 	for elem in listset:
 		if elem.grid == grid:
-			return True
-	return False
+			return elem.depth
+	return 0
 
 def search_grid_in_set_and_remove(grid, listset):
 	for elem in listset:
@@ -111,7 +111,7 @@ def aStar(start, goal):
 	current.depth = 1
 	openset.add(current)
 	while openset:
-		current = min(openset, key=lambda o:o.depth + o.value)
+		current = min(openset, key=lambda o:o.value)
 		if current.grid == goal:
 			path = []
 			while current.parent:
@@ -122,16 +122,15 @@ def aStar(start, goal):
 		openset.remove(current)
 		closedset.add(current)
 		for node in children(current, goal):
-			if search_grid_in_set(node.grid, closedset):
+			if search_grid_in_set(node.grid, closedset) > 0:
 				continue
-			nodeListed = search_grid_in_set_and_remove(node.grid, openset)
-			if nodeListed.depth != 0:
+			nodeDepth = search_grid_in_set(node.grid, openset)
+			if nodeDepth > 0:
 				new_depth = current.depth + 1
-				if nodeListed.depth > new_depth:
+				if nodeDepth > new_depth:
+					nodeListed = search_grid_in_set_and_remove(node.grid, openset)
 					nodeListed.depth = new_depth
 					nodeListed.parent = current
-					openset.add(nodeListed)
-				else:
 					openset.add(nodeListed)
 			else:
 				node.depth = current.depth + 1
