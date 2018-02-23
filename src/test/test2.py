@@ -1,4 +1,4 @@
-import commands
+# import commands
 import os, sys
 from math import sqrt
 from spiral import spiral, printspiral
@@ -39,7 +39,7 @@ def getvalue(tab, key):
 	return valid
 
 # list of next possible states
-def children(current, goal):
+def children(current, goal, heristic):
 	expands = {}
 	longueur = len(current.grid)
 	for key in range(longueur):
@@ -56,7 +56,7 @@ def children(current, goal):
 		(nstate[pos + mv], nstate[pos]) = (nstate[pos], nstate[pos + mv])
 		expstat.append(nstate)
 		child = Node(nstate)
-		child.value = distance(child.grid, goal)
+		child.value = choose_heristic(heristic, child.grid, goal)
 		child.depth = current.depth + 1
 		children.append(Node(nstate))
 		# printtab(child.grid)
@@ -74,7 +74,7 @@ def children(current, goal):
 		# printtab(child.grid)
 	return children
 
-def distance(tab, goal):
+def manhattan(tab, goal):
     dist = 0
     # taille au carre
     nsize = int(sqrt(len(tab)))
@@ -88,6 +88,11 @@ def distance(tab, goal):
     for i, node in enumerate(tab) if node)
     # print mdist
     return mdist
+
+def	choose_heristic(heristic, tab, goal):
+	if (heristic == 'Manhattan'):
+		return manhattan(tab, goal)
+	
 
 def search_grid_in_set(grid, listset):
 	for elem in listset:
@@ -106,8 +111,9 @@ def search_grid_in_set_and_remove(grid, listset):
 def aStar(start, goal):
 	openset = set()
 	closedset = set()
+	heristic = "Manhattan"
 	current = Node(start)
-	current.value = distance(start, goal)
+	current.value = choose_heristic(heristic , start, goal)
 	current.depth = 1
 	openset.add(current)
 	while openset:
@@ -118,10 +124,11 @@ def aStar(start, goal):
 				path.append(current)
 				current = current.parent
 			path.append(current)
+			print("number of step: " + str(len(path)))
 			return path[::-1]
 		openset.remove(current)
 		closedset.add(current)
-		for node in children(current, goal):
+		for node in children(current, goal, heristic):
 			if search_grid_in_set(node.grid, closedset) > 0:
 				continue
 			nodeDepth = search_grid_in_set(node.grid, openset)
@@ -134,7 +141,7 @@ def aStar(start, goal):
 					openset.add(nodeListed)
 			else:
 				node.depth = current.depth + 1
-				node.value = distance(node.grid, goal)
+				node.value = choose_heristic(heristic , node.grid, goal)
 				node.parent = current
 				openset.add(node)
 		# print('openset')
@@ -150,17 +157,17 @@ def aStar(start, goal):
 if __name__ == '__main__':
 	sys.stdout.write('N-Puzzle x ')
 	if len(sys.argv) == 2:
-		print sys.argv[1]
+		print(sys.argv[1])
 	else:
 		sys.exit("\nError - You must give the size of the puzzle")
-	print 12 * '='
+	print(12 * '=')
 	start = get_puzzle(sys.argv[1])
 	goal = printspiral(spiral(int(sys.argv[1])))
-	print 'The Goal State should be:'
+	print('The Goal State should be:')
 	printtab(goal)
-	print 'The Starting State is:'
+	print('The Starting State is:')
 	printtab(start)
-	print 'Here it Goes:'
+	print('Here it Goes:')
 	# resolution(start, goal)
 	path = aStar(start, goal)
 	print('Finish')

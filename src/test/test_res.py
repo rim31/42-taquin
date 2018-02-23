@@ -38,5 +38,5 @@ def get_puzzle(nb):
     if (my_resolvable(s.split()) == 1):
         exit
     tab = map(int, tab)
-    print tab
+    print(tab)
     return tab
