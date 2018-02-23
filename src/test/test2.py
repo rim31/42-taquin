@@ -80,18 +80,31 @@ def manhattan(tab, goal):
     nsize = int(sqrt(len(tab)))
     for node in tab:
         if node != 0:
-            gdist = abs(goal.index(node) - tab.index(node))
-            jumps = gdist // nsize
-            steps = gdist % nsize
-            dist += jumps + steps
-    mdist = sum(abs((node-1)%nsize - i%nsize) + abs((node-1)//nsize - i//nsize)
-    for i, node in enumerate(tab) if node)
-    # print mdist
-    return mdist
+			xGoal = goal.index(node) // nsize
+			yGoal =	goal.index(node) % nsize
+			xTab = tab.index(node) // nsize
+			yTab = tab.index(node) % nsize
+			dist += abs(xGoal - xTab) + abs(yGoal - yTab)
+    return dist
+
+def euclidean(tab, goal):
+    dist = 0
+    # taille au carre
+    nsize = int(sqrt(len(tab)))
+    for node in tab:
+        if node != 0:
+			xGoal = goal.index(node) // nsize
+			yGoal =	goal.index(node) % nsize
+			xTab = tab.index(node) // nsize
+			yTab = tab.index(node) % nsize
+			dist += sqrt(pow((xGoal - xTab), 2) + pow((yGoal - yTab), 2))
+    return dist
 
 def	choose_heristic(heristic, tab, goal):
 	if (heristic == 'Manhattan'):
 		return manhattan(tab, goal)
+	if (heristic == 'Euclidean'):
+		return euclidean(tab, goal)
 	
 
 def search_grid_in_set(grid, listset):
@@ -112,6 +125,7 @@ def aStar(start, goal):
 	openset = set()
 	closedset = set()
 	heristic = "Manhattan"
+	# heristic = "Euclidean"
 	current = Node(start)
 	current.value = choose_heristic(heristic , start, goal)
 	current.depth = 1
