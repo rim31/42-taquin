@@ -4,11 +4,14 @@ from math import sqrt
 from spiral import spiral, printspiral
 from test_res import get_puzzle
 from printtab import printtab
+import heapq
+
 
 import time
 
 class Node:
 	def __init__(self, grid):
+		# self.dimension = sqrt(len(grid))
 		self.grid = grid
 		# heuristic_nb value
 		self.value = 0
@@ -17,8 +20,6 @@ class Node:
 		self.order = None
 		self.parent = None
 		self.adj_matrix = []
-		# self.H = 0
-		# self.G = 0
 	# def move_cost(self, other):
 	#     return 0 if self.value == '.' else 1
 
@@ -38,13 +39,12 @@ def getvalue(tab, key):
 	# print valid
 	return valid
 
-# list of next possible states
 def children(current, goal, heuristic_nb):
 	expands = {}
 	longueur = len(current.grid)
 	for key in range(longueur):
 		expands[key] = getvalue(current.grid, key)
-	pos = current.grid.index(0) #position du 0 'case vide'
+	pos = current.grid.index(0)
 	moves = expands[pos]
 	# print moves
 	expstat = []
@@ -56,7 +56,7 @@ def children(current, goal, heuristic_nb):
 		(nstate[pos + mv], nstate[pos]) = (nstate[pos], nstate[pos + mv])
 		expstat.append(nstate)
 		child = Node(nstate)
-		child.value = choose_heuristic(heuristic_nb, child.grid, goal)
+		child.value = heuristic(heuristic_nb, child.grid, goal)
 		child.depth = current.depth + 1
 		children.append(Node(nstate))
 		# printtab(child.grid)
@@ -75,36 +75,71 @@ def children(current, goal, heuristic_nb):
 	return children
 
 def manhattan(tab, goal):
-    dist = 0
-    # taille au carre
-    nsize = int(sqrt(len(tab)))
-    for node in tab:
-        if node != 0:
+	dist = 0
+	# taille au carre
+	nsize = int(sqrt(len(tab)))
+	for node in tab:
+		if node != 0 and goal.index(node) != tab.index(node):
 			xGoal = goal.index(node) // nsize
 			yGoal =	goal.index(node) % nsize
 			xTab = tab.index(node) // nsize
 			yTab = tab.index(node) % nsize
 			dist += abs(xGoal - xTab) + abs(yGoal - yTab)
-    return dist
+	return dist
 
 def euclidean(tab, goal):
-    dist = 0
-    # taille au carre
-    nsize = int(sqrt(len(tab)))
-    for node in tab:
-        if node != 0:
+	dist = 0
+	# taille au carre
+	nsize = int(sqrt(len(tab)))
+	for node in tab and goal.index(node) != tab.index(node):
+		if node != 0:
 			xGoal = goal.index(node) // nsize
 			yGoal =	goal.index(node) % nsize
 			xTab = tab.index(node) // nsize
 			yTab = tab.index(node) % nsize
 			dist += sqrt(pow((xGoal - xTab), 2) + pow((yGoal - yTab), 2))
-    return dist
+	return dist
 
-def	choose_heuristic(heuristic_nb, tab, goal):
+def linear_conflict(tab, goal):
+	size = int(sqrt(len(tab)))
+	heuristic = manhattan(tab, goal)
+	def linear_vertical_conflict():
+		linearConflict = 0
+		for row in range(size - 1):
+			maxVal = -1
+			for col in range(size - 1):
+				cellValue = tab[(size * col) + row]
+				if cellValue != 0 and (cellValue - 1) / size == row:
+					if cellValue > maxVal:
+						maxVal = cellValue
+					else:
+						linearConflict += 2
+		return linearConflict
+
+	def linear_horizontal_conflict():
+		linearConflict = 0
+		for row in range(size - 1):
+			maxVal = -1
+			for col in range(size - 1):
+				cellValue = tab[(size * col) + row]
+				if cellValue != 0 and cellValue % size == col + 1:
+					if cellValue > maxVal:
+						maxVal = cellValue
+					else:
+						linearConflict += 2
+		return linearConflict
+	
+	heuristic += linear_vertical_conflict()
+	heuristic += linear_horizontal_conflict()
+	return heuristic
+
+def	heuristic(heuristic_nb, tab, goal):
 	if (int(heuristic_nb) == 1):
 		return manhattan(tab, goal)
 	if (int(heuristic_nb) == 2):
 		return euclidean(tab, goal)
+	if (int(heuristic_nb) == 3):
+		return linear_conflict(tab, goal)
 	
 
 def search_grid_in_set(grid, listset):
@@ -127,7 +162,7 @@ def aStar(start, goal, heuristic_nb):
 	# heuristic_nb = "Manhattan"
 	# heuristic_nb = "Euclidean"
 	current = Node(start)
-	current.value = choose_heuristic(heuristic_nb , start, goal)
+	current.value = heuristic(heuristic_nb , start, goal)
 	current.depth = 1
 	openset.add(current)
 	while openset:
@@ -155,7 +190,7 @@ def aStar(start, goal, heuristic_nb):
 					openset.add(nodeListed)
 			else:
 				node.depth = current.depth + 1
-				node.value = choose_heuristic(heuristic_nb , node.grid, goal)
+				node.value = heuristic(heuristic_nb , node.grid, goal)
 				node.parent = current
 				openset.add(node)
 		# print('openset')
@@ -188,4 +223,4 @@ if __name__ == '__main__':
 	print('Finish')
 	for elem in path:
 		printtab(elem.grid)
-	# print(path)
+	printtab(start)
