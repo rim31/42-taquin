@@ -25,14 +25,15 @@ def my_resolvable(list, tab, goal):
 				nb_inv += 1
 		testDone.add(goal[indexGoal])
 	dist = manhattan(tab, goal)
-	print(nb_inv)
-	print(dist)
+	# print("nombre d'inversion : ", nb_inv)
+	# print("distance manhattan : ", dist)
 	if ((dist % 2 == 0 and nb_inv % 2 == 0) or (dist % 2 != 0 and nb_inv != 0)):
 		print("SOLVABLE")
+		return (1)
 	else:
 		print("UNSOLVABLE")
 		sys.exit()
-	raw_input("my my_resolvable testing")
+	return (0)
 
 def get_puzzle(nb, goal):
     cmd = "python generator.py " + str(nb)
