@@ -18,15 +18,15 @@ def printtab(tab):
     # """Print the list in a Matrix Format."""
     for (index, value) in enumerate(tab):
         if value == 0:
-            print bcolors.FIVE + ' %s' % value,
+            print bcolors.FIVE + '%4s' % value,
         elif value <= 9:
-            print bcolors.ONE + ' %s' % value,
+            print bcolors.ONE + '%4s' % value,
         elif value <= 19:
-            print bcolors.TWO + '%s' % value,
+            print bcolors.TWO + '%4s' % value,
         elif value <= 29:
-            print bcolors.THREE + '%s' % value,
+            print bcolors.THREE + '%4s' % value,
         else:
-            print bcolors.FOUR + '%s' % value,
+            print bcolors.FOUR + '%4s' % value,
         if index in [x for x in range(largeur - 1, longueur, largeur)]:
             print
     print bcolors.ENDC
