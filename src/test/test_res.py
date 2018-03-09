@@ -7,12 +7,12 @@ def manhattan(tab, goal):
 	dist = 0
 	nsize = int(sqrt(len(tab)))
 	for node in tab:
-	    if node != 0 and goal.index(node) != tab.index(node):
-	        xGoal = goal.index(node) // nsize
-	        yGoal =	goal.index(node) % nsize
-	        xTab = tab.index(node) // nsize
-	        yTab = tab.index(node) % nsize
-	        dist += abs(xGoal - xTab) + abs(yGoal - yTab)
+		if node != 0 and goal.index(node) != tab.index(node):
+			xGoal = goal.index(node) // nsize
+			yGoal =	goal.index(node) % nsize
+			xTab = tab.index(node) // nsize
+			yTab = tab.index(node) % nsize
+			dist += abs(xGoal - xTab) + abs(yGoal - yTab)
 	return dist
 
 def my_resolvable(list, tab, goal):
@@ -24,7 +24,7 @@ def my_resolvable(list, tab, goal):
 				nb_inv += 1
 		testDone.add(goal[indexGoal])
 	dist = manhattan(tab, goal)
-	if ((dist % 2 == 0 and nb_inv % 2 == 0) or (dist % 2 != 0 and nb_inv != 0)):
+	if (dist % 2 == 0 and nb_inv % 2 == 0 or dist % 2 != 0 and nb_inv % 2 != 0):
 		print("SOLVABLE")
 		return (1)
 	else:
@@ -33,19 +33,19 @@ def my_resolvable(list, tab, goal):
 	return (0)
 
 def get_puzzle(nb, goal):
-    cmd = "python generator.py -s " + str(nb)
-    p = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True)
-    (output, err) = p.communicate()
-    p_status = p.wait()
-    count = 0
-    s = ""
-    for line in output.splitlines():
-        count = count + 1
-        if (count > 2):
-            s += str(line) + " "
-    tab = []
-    tab = s.split()
-    tab = map(int, tab)
-    if (my_resolvable(s.split(), tab, goal) == 1):
-        exit
-    return tab
+	cmd = "python generator.py " + str(nb)
+	p = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True)
+	(output, err) = p.communicate()
+	p_status = p.wait()
+	count = 0
+	s = ""
+	for line in output.splitlines():
+		count = count + 1
+		if (count > 2):
+			s += str(line) + " "
+	tab = []
+	tab = s.split()
+	tab = map(int, tab)
+	if (my_resolvable(s.split(), tab, goal) == 1):
+		exit
+	return tab

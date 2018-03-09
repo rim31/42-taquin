@@ -30,3 +30,6 @@ def printtab(tab):
         if index in [x for x in range(largeur - 1, longueur, largeur)]:
             print
     print bcolors.ENDC
+
+def writtetab(tab, f):
+    print >>f, tab

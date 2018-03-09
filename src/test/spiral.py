@@ -21,7 +21,6 @@ def printspiral(myarray):
     for y in n:
         for x in n:
             goal.append(myarray[x][y])
-        print
     return goal
 
 

@@ -3,7 +3,7 @@ import os, sys
 from math import sqrt
 from spiral import spiral, printspiral
 from test_res import get_puzzle, my_resolvable
-from printtab import printtab
+from printtab import printtab, writtetab
 import heuristic as hf
 import heapq
 from parsing import Parsing
@@ -88,6 +88,7 @@ def aStar(start, goal, heuristic_nb):
 	openSet = []
 	openSetLen = 0
 	maxNbStatesInMemoryAtTheSameTime = 0
+	maxNbStatesInOpenAtTheSameTime = 0
 	closedset = set()
 	current = Node(start)
 	current.value = heuristic(heuristic_nb , start, goal)
@@ -103,7 +104,7 @@ def aStar(start, goal, heuristic_nb):
 				current = current.parent
 				current = current[1]
 			path.append(current)
-			return path[::-1], maxNbStatesInMemoryAtTheSameTime
+			return path[::-1], maxNbStatesInMemoryAtTheSameTime, maxNbStatesInOpenAtTheSameTime
 		closedset.add(current)
 		for node in children(current, goal, heuristic_nb):
 			if search_grid_in_tuple(node.grid, closedset) > 0:
@@ -122,13 +123,16 @@ def aStar(start, goal, heuristic_nb):
 				node.parent = current
 				heapq.heappush(openSet, (node.value, node))
 		openSetLen = len(openSet)
-		if openSetLen > maxNbStatesInMemoryAtTheSameTime:
-			maxNbStatesInMemoryAtTheSameTime = openSetLen
+		openSetTot = len(openSet) + len(closedset)
+		if openSetLen > maxNbStatesInOpenAtTheSameTime:
+			maxNbStatesInOpenAtTheSameTime = openSetLen
+		if openSetTot > maxNbStatesInMemoryAtTheSameTime:
+			maxNbStatesInMemoryAtTheSameTime = openSetTot
 	raise ValueError('No Path Found')
 
 if __name__ == '__main__':
 	if len(sys.argv) != 2:
-		sys.exit("\nError - You must give a size of puzzle between 3 and 70or use a file")
+		sys.exit("Error - You must give a size of puzzle between 3 and 70 or use a file")
 	file = False
 	try:
 		sizeOrFile = int(sys.argv[1])
@@ -137,8 +141,7 @@ if __name__ == '__main__':
 			sizeOrFile = open(sys.argv[1], "r")
 			file = True
 		except:
-			sys.exit("\nError - Openning error")
-
+			sys.exit("Error - Openning error")
 	if file == False:
 		if sizeOrFile < 71 and sizeOrFile > 2:
 			goal = printspiral(spiral(int(sys.argv[1])))
@@ -150,22 +153,26 @@ if __name__ == '__main__':
 		# print(parsing.puzzle)
 		if (my_resolvable(parsing, start, goal) == 1):
 			exit
-
 	print('The Goal State should be:')
 	printtab(goal)
 	print('The Starting State is:')
 	printtab(start)
 	heuristic_nb = raw_input("Choose your heuristic_nb: 1 (Manhattan), 2 (Euclidean), 3 (linear conflict), 4, or 5\n")
+	try:
+		heuristic_nb = int(heuristic_nb)
+	except:
+		sys.exit("Error - wrong input")
 	if (1 > int(heuristic_nb) and int(heuristic_nb) > 5):
-		sys.exit("\nError - You must choose a number between 1 and 5")
+		sys.exit("Error - You must choose a number between 1 and 5")
 	print('Here it Goes:')
-	path, maxNbStatesInMemoryAtTheSameTime = aStar(start, goal, heuristic_nb)
+	path, maxInMemory, maxInOpen = aStar(start, goal, heuristic_nb)
 	print('Finish')
 	for elem in path:
 		printtab(elem.grid)
-		# clear = "\n" * 100
-		# print(clear)
-
-
-
-
+	f = open('log.txt', "w+")
+	for elem in path:
+		writtetab(elem.grid, f)
+	f.close()
+	print("Complexity in size: " + str(maxInMemory))
+	print("Complexity in time: " + str(maxInOpen))
+	print("Number of step: " + str(len(path)))

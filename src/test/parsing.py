@@ -1,6 +1,5 @@
 import sys
 
-
 class Parsing():
 
 	def __init__(self, file):
