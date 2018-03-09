@@ -6,6 +6,7 @@ from test_res import get_puzzle
 from printtab import printtab
 import heuristic as hf
 import heapq
+from parsing import Parsing
 
 class Node:
 	def __init__(self, grid):
@@ -127,14 +128,28 @@ def aStar(start, goal, heuristic_nb):
 	raise ValueError('No Path Found')
 
 if __name__ == '__main__':
-	sys.stdout.write('N-Puzzle x ')
-	if len(sys.argv) == 2 and int(sys.argv[1]) < 71 and int(sys.argv[1]) > 2:
-		print(sys.argv[1])
-	else:
-		sys.exit("\nError - You must give a size of puzzle between 3 and 70")
-	print(12 * '=')
-	goal = printspiral(spiral(int(sys.argv[1])))
-	start = get_puzzle(sys.argv[1], goal)
+	if len(sys.argv) != 2:
+		sys.exit("\nError - You must give a size of puzzle between 3 and 70or use a file")
+	file = False
+	try:
+		sizeOrFile = int(sys.argv[1])
+	except:
+		try:
+			sizeOrFile = open(sys.argv[1], "r")
+			file = True
+		except:
+			sys.exit("\nError - Openning error")
+
+	if file == False:
+		if sizeOrFile < 71 and sizeOrFile > 2:
+			goal = printspiral(spiral(int(sys.argv[1])))
+			start = get_puzzle(sys.argv[1], goal)
+	if file == True:
+		parsing = Parsing(sizeOrFile)
+		start = parsing.puzzle
+		goal = printspiral(spiral(int(sqrt(len(start)))))
+		# print(parsing.puzzle)
+
 	print('The Goal State should be:')
 	printtab(goal)
 	print('The Starting State is:')
@@ -147,58 +162,7 @@ if __name__ == '__main__':
 	print('Finish')
 	for elem in path:
 		printtab(elem.grid)
-	printtab(start)
+	# printtab(start)
 
-# def runNpuzzle(size, heuristic, options, puzzle = None):
-# 	npuzzle = Npuzzle(size, heuristic, options, puzzle)
-# 	npuzzle.resolve()
-# 	npuzzle.printInfos()
 
-# if __name__ == "__main__":
-# 	options = []
-# 	lenArgv = len(sys.argv)
-# 	if lenArgv > 2 and lenArgv < 7:
-# 		argI = 1
-# 		for arg in sys.argv[1:lenArgv - 2]:
-# 			if arg == "-s" or arg == "-u" or arg == "-v":
-# 				options.append(arg)
-# 			else:
-# 				utils.printError(utils.Errors.ARGUMENTS)
-# 			argI += 1
-# 		if "-s" in options and "-u" in options:
-# 			utils.printError(utils.Errors.SOLVABLE_AND_UNSOLVABLE)
-# 		file = False
-# 		try:
-# 			sizeOrFile = int(sys.argv[argI])
-# 		except:
-# 			try:
-# 				sizeOrFile = open(sys.argv[argI], "r")
-# 				file = True
-# 			except:
-# 				utils.printError(utils.Errors.OPEN_FILE, sys.argv[argI])
-# 		try:
-# 			heuristic_nb = int(sys.argv[argI + 1])
-# 		except:
-# 			utils.printError(utils.Errors.ARGUMENTS)
-
-# 		if heuristic_nb > 0 and heuristic_nb < 6:
-# 			if file:
-# 				from Parsing import Parsing
-# 				parsing = Parsing(sizeOrFile)
-# 				aStar(parsing.puzzle, goal, heuristic_nb)
-# 				# runNpuzzle(parsing.puzzleSize, heuristic, options, parsing.puzzle)
-# 			elif sizeOrFile > 2 and sizeOrFile < 71
-
-# 				# runNpuzzle(sizeOrFile, heuristic, options)
-# 			else:
-# 				utils.printError(utils.Errors.ARGUMENTS)
-# 		else:
-# 			utils.printError(utils.Errors.ARGUMENTS)
-# 		if file:
-# 			try:
-# 				sizeOrFile.close()
-# 			except:
-# 				utils.printError(utils.Errors.CLOSE_FILE, sys.argv[argI])
-# 	else:
-# 		utils.printError(utils.Errors.ARGUMENTS)
 
