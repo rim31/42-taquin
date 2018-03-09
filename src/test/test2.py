@@ -41,29 +41,29 @@ def getvalue(tab, key):
 
 def children(current, goal, heuristic_nb):
 	expands = {}
-	longueur = len(current.grid)
+	longueur = len(current[1].grid)
 	for key in range(longueur):
-		expands[key] = getvalue(current.grid, key)
-	pos = current.grid.index(0)
+		expands[key] = getvalue(current[1].grid, key)
+	pos = current[1].grid.index(0)
 	moves = expands[pos]
 	# print moves
 	expstat = []
 	children = []
 	# print('_____Children_____')
 	for mv in moves:
-		nstate = current.grid[:]# Affiche toutes les occurences
+		nstate = current[1].grid[:]# Affiche toutes les occurences
 		# printtab(nstate)
 		(nstate[pos + mv], nstate[pos]) = (nstate[pos], nstate[pos + mv])
 		expstat.append(nstate)
 		child = Node(nstate)
 		child.value = heuristic(heuristic_nb, child.grid, goal)
-		child.depth = current.depth + 1
+		child.depth = current[1].depth + 1
 		children.append(Node(nstate))
 		# printtab(child.grid)
 	return children
 
 	for mv in moves:
-		nstate = current.grid[:]# Affiche toutes les occurences
+		nstate = current[1].grid[:]# Affiche toutes les occurences
 		# printtab(nstate)
 		(nstate[pos + mv], nstate[pos]) = (nstate[pos], nstate[pos + mv])
 		expstat.append(nstate)
@@ -91,8 +91,10 @@ def euclidean(tab, goal):
 	dist = 0
 	# taille au carre
 	nsize = int(sqrt(len(tab)))
-	for node in tab and goal.index(node) != tab.index(node):
-		if node != 0:
+	node = 0
+	for node in tab:
+		# print(node)
+		if node != 0 and goal.index(node) != tab.index(node):
 			xGoal = goal.index(node) // nsize
 			yGoal =	goal.index(node) % nsize
 			xTab = tab.index(node) // nsize
@@ -102,7 +104,7 @@ def euclidean(tab, goal):
 
 def linear_conflict(tab, goal):
 	size = int(sqrt(len(tab)))
-	heuristic = manhattan(tab, goal)
+	heuristic_val = manhattan(tab, goal)
 	def linear_vertical_conflict():
 		linearConflict = 0
 		for row in range(size - 1):
@@ -128,10 +130,17 @@ def linear_conflict(tab, goal):
 					else:
 						linearConflict += 2
 		return linearConflict
+<<<<<<< HEAD
 
 	heuristic += linear_vertical_conflict()
 	heuristic += linear_horizontal_conflict()
 	return heuristic
+=======
+	
+	heuristic_val += linear_vertical_conflict()
+	heuristic_val += linear_horizontal_conflict()
+	return heuristic_val
+>>>>>>> 15f9d26c4c3a2a1970594441a789c96c84dc89a5
 
 def	heuristic(heuristic_nb, tab, goal):
 	if (int(heuristic_nb) == 1):
@@ -148,57 +157,63 @@ def search_grid_in_set(grid, listset):
 			return elem.depth
 	return 0
 
+def search_grid_in_tuple(grid, listset):
+	for elem in listset:
+		if elem[1].grid == grid:
+			return elem[1].depth
+	return 0
+
 def search_grid_in_set_and_remove(grid, listset):
 	for elem in listset:
-		if elem.grid == grid:
+		if elem[1].grid == grid:
 			listset.remove(elem)
 			return elem
 	newNode = Node(grid)
 	return newNode
 
 def aStar(start, goal, heuristic_nb):
-	openset = set()
+	openset = []
 	closedset = set()
-	# heuristic_nb = "Manhattan"
-	# heuristic_nb = "Euclidean"
 	current = Node(start)
 	current.value = heuristic(heuristic_nb , start, goal)
 	current.depth = 1
-	openset.add(current)
+	heapq.heappush(openset, (current.value, current))
 	while openset:
-		current = min(openset, key=lambda o:o.value)
-		if current.grid == goal:
+		current = heapq.heappop(openset)
+		if current[1].grid == goal:
 			path = []
+			current = current[1]
+			print(current.grid)
+			print(current.parent)
 			while current.parent:
 				path.append(current)
 				current = current.parent
+				current = current[1]
 			path.append(current)
-			print("number of step: " + str(len(path)))
 			return path[::-1]
-		openset.remove(current)
 		closedset.add(current)
 		for node in children(current, goal, heuristic_nb):
-			if search_grid_in_set(node.grid, closedset) > 0:
+			if search_grid_in_tuple(node.grid, closedset) > 0:
 				continue
-			nodeDepth = search_grid_in_set(node.grid, openset)
+			nodeDepth = search_grid_in_tuple(node.grid, openset)
 			if nodeDepth > 0:
-				new_depth = current.depth + 1
+				new_depth = current[1].depth + 1
 				if nodeDepth > new_depth:
 					nodeListed = search_grid_in_set_and_remove(node.grid, openset)
-					nodeListed.depth = new_depth
-					nodeListed.parent = current
-					openset.add(nodeListed)
+					nodeListed[1].depth = new_depth
+					nodeListed[1].parent = current
+					heapq.heappush(openset, (nodeListed[1].value, nodeListed[1]))
 			else:
-				node.depth = current.depth + 1
+				node.depth = current[1].depth + 1
 				node.value = heuristic(heuristic_nb , node.grid, goal)
 				node.parent = current
-				openset.add(node)
-		# print('openset')
-		# for elem in openset:
-		# 	print(str(elem.grid) + " " + str(elem.value) + " " + str(elem.depth))
+				heapq.heappush(openset, (node.value, node))
 		# print('closedset')
 		# for elem in closedset:
-		# 	print(elem.grid)
+		# 	print(elem[1].grid)
+		# print('openset')
+		# for elem in openset:
+		# 	print(str(elem[1].grid) + " " + str(elem[1].value) + " " + str(elem[1].depth))
 		# raw_input("Press Enter to continue...")
 	raise ValueError('No Path Found')
 
