@@ -128,7 +128,7 @@ def linear_conflict(tab, goal):
 					else:
 						linearConflict += 2
 		return linearConflict
-	
+
 	heuristic += linear_vertical_conflict()
 	heuristic += linear_horizontal_conflict()
 	return heuristic
@@ -140,7 +140,7 @@ def	heuristic(heuristic_nb, tab, goal):
 		return euclidean(tab, goal)
 	if (int(heuristic_nb) == 3):
 		return linear_conflict(tab, goal)
-	
+
 
 def search_grid_in_set(grid, listset):
 	for elem in listset:
@@ -210,8 +210,8 @@ if __name__ == '__main__':
 	else:
 		sys.exit("\nError - You must give the size of the puzzle")
 	print(12 * '=')
-	start = get_puzzle(sys.argv[1])
 	goal = printspiral(spiral(int(sys.argv[1])))
+	start = get_puzzle(sys.argv[1], goal)
 	print('The Goal State should be:')
 	printtab(goal)
 	print('The Starting State is:')
