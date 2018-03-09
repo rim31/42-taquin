@@ -2,26 +2,40 @@ import subprocess
 import os, sys
 from math import sqrt
 
-def my_resolvable(list):
-    nb_inv = 0
-    print(list)
-    for i in range(0, len(list)):
-        for j in range(i + 1, len(list)):
-            if (list[j] > list[i] and list[j] and list[i]):
-                nb_inv += 1
-    # raw_input("Press Enter to continue...")
-    # if (int(sqrt(len(list))) % 2 == 0):
-    #     if (nb_inv % 2 == 1):
-    #         sys.stdout.write('Unsolvable')
-    #         sys.exit()
-    # else:
-    #     if (nb_inv % 2 == 0):
-    #         sys.stdout.write('Unsolvable')
-    #         sys.exit()
-    # print("solvable : " + str(nb_inv))
-    return (nb_inv % 2)
 
-def get_puzzle(nb):
+def manhattan(tab, goal):
+	dist = 0
+	nsize = int(sqrt(len(tab)))
+	for node in tab:
+	    if node != 0 and goal.index(node) != tab.index(node):
+	        xGoal = goal.index(node) // nsize
+	        yGoal =	goal.index(node) % nsize
+	        xTab = tab.index(node) // nsize
+	        yTab = tab.index(node) % nsize
+	        dist += abs(xGoal - xTab) + abs(yGoal - yTab)
+	return dist
+
+def my_resolvable(list, tab, goal):
+	nb_inv = 0
+	testDone = set()
+	print (list)
+	for indexGoal in (range(0, len(goal) - 1)):
+		for indexPuzzle in (range(0, tab.index(goal[indexGoal]))):
+			if (tab[indexPuzzle] not in testDone):
+				nb_inv += 1
+		testDone.add(goal[indexGoal])
+	dist = manhattan(tab, goal)
+	# print("nombre d'inversion : ", nb_inv)
+	# print("distance manhattan : ", dist)
+	if ((dist % 2 == 0 and nb_inv % 2 == 0) or (dist % 2 != 0 and nb_inv != 0)):
+		print("SOLVABLE")
+		return (1)
+	else:
+		print("UNSOLVABLE")
+		sys.exit()
+	return (0)
+
+def get_puzzle(nb, goal):
     cmd = "python generator.py " + str(nb)
     p = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True)
     (output, err) = p.communicate()
@@ -36,11 +50,9 @@ def get_puzzle(nb):
             s += str(line) + " "
     tab = []
     tab = s.split()
-    if (my_resolvable(s.split()) == 1):
-        exit
     tab = map(int, tab)
-    print(tab)
+    if (my_resolvable(s.split(), tab, goal) == 1):
+        exit
+    # print(tab)
     # tab = [16, 9, 14, 11, 12, 7, 1, 18, 5, 20, 21, 10, 6, 17, 13, 24, 2, 19, 0, 15, 3, 22, 23, 4, 8]
-    # tab = [15, 7, 11, 4, 0, 2, 12, 14, 1, 10, 3, 8, 13, 9, 5, 6]
-    # tab = [4, 8, 13, 9, 11, 7, 0, 15, 1, 12, 6, 2, 10, 14, 5, 3]
     return tab

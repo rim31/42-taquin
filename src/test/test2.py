@@ -133,8 +133,8 @@ if __name__ == '__main__':
 	else:
 		sys.exit("\nError - You must give a size of puzzle between 3 and 70")
 	print(12 * '=')
-	start = get_puzzle(sys.argv[1])
 	goal = printspiral(spiral(int(sys.argv[1])))
+	start = get_puzzle(sys.argv[1], goal)
 	print('The Goal State should be:')
 	printtab(goal)
 	print('The Starting State is:')
@@ -201,3 +201,4 @@ if __name__ == '__main__':
 # 				utils.printError(utils.Errors.CLOSE_FILE, sys.argv[argI])
 # 	else:
 # 		utils.printError(utils.Errors.ARGUMENTS)
+
