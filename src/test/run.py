@@ -2,11 +2,12 @@
 import os, sys
 from math import sqrt
 from spiral import spiral, printspiral
-from test_res import get_puzzle
+from test_res import get_puzzle, my_resolvable
 from printtab import printtab
 import heuristic as hf
 import heapq
 from parsing import Parsing
+
 
 class Node:
 	def __init__(self, grid):
@@ -97,8 +98,6 @@ def aStar(start, goal, heuristic_nb):
 		if current[1].grid == goal:
 			path = []
 			current = current[1]
-			print(current.grid)
-			print(current.parent)
 			while current.parent:
 				path.append(current)
 				current = current.parent
@@ -149,6 +148,8 @@ if __name__ == '__main__':
 		start = parsing.puzzle
 		goal = printspiral(spiral(int(sqrt(len(start)))))
 		# print(parsing.puzzle)
+		if (my_resolvable(parsing, start, goal) == 1):
+			exit
 
 	print('The Goal State should be:')
 	printtab(goal)
@@ -162,7 +163,9 @@ if __name__ == '__main__':
 	print('Finish')
 	for elem in path:
 		printtab(elem.grid)
-	# printtab(start)
+		# clear = "\n" * 100
+		# print(clear)
+
 
 
 
