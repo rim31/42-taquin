@@ -150,14 +150,13 @@ if __name__ == '__main__':
 		parsing = Parsing(sizeOrFile)
 		start = parsing.puzzle
 		goal = printspiral(spiral(int(sqrt(len(start)))))
-		# print(parsing.puzzle)
 		if (my_resolvable(parsing, start, goal) == 1):
 			exit
 	print('The Goal State should be:')
 	printtab(goal)
 	print('The Starting State is:')
 	printtab(start)
-	heuristic_nb = raw_input("Choose your heuristic_nb: 1 (Manhattan), 2 (Euclidean), 3 (linear conflict), 4, or 5\n")
+	heuristic_nb = raw_input("Choose your heuristic_nb: 1 (Manhattan), 2 (Euclidean), 3 (linear conflict), 4 (tiles out of row and column), or 5 (misplaced tiles)\n")
 	try:
 		heuristic_nb = int(heuristic_nb)
 	except:
