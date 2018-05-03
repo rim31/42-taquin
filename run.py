@@ -1,198 +1,195 @@
-#!/usr/bin/env python
-
-import subprocess
-import commands
 import os, sys
 from math import sqrt
-import random
 from spiral import spiral, printspiral
+from test_res import get_puzzle, my_resolvable
+from printtab import printtab, writtetab
+import heuristic as hf
+import heapq
+from parsing import Parsing
+import argparse
 
+class Node:
+	def __init__(self, grid):
+		self.grid = grid
+		self.value = 0
+		self.depth = 0
+		self.order = None
+		self.parent = None
+		self.adj_matrix = []
 
-class bcolors:
-    ONE = '\033[95m'
-    TWO = '\033[94m'
-    THREE = '\033[92m'
-    FOUR = '\033[93m'
-    FIVE = '\033[91m'
-    SIX = '\033[0m'
-    SEVEN = '\033[1m'
-    EIGHT = '\033[4m'
-    NINE = '\033[96m'
-    ENDC = '\033[0m'
-
-def printtab(tab):
-    largeur = int(sqrt(len(tab)))
-    longueur = int(len(tab))
-    """Print the list in a Matrix Format."""
-    for (index, value) in enumerate(tab):
-        print bcolors.ONE + ' %s ' % value,
-        if index in [x for x in range(largeur - 1, longueur, largeur)]:
-            print
-    print bcolors.ENDC
-# def resolvable(list):
-#     nb_inv = 0
-#     print(list)
-#     for i in range(0, len(list)):
-#         for j in range(i + 1, len(list)):
-#             if(list[j] > list[i] and list[j] and list[i]):
-#                 nb_inv += 1
-#     if (nb_inv % 2 == 1):
-#         sys.stdout.write('Un')
-#     print("solvable : nb d'inversion " + str(nb_inv))
-# //alogo pour savoir sion on a bien un nombre pair de permutation pour savoir si c'est resolvable
-def my_resolvable(list):
-    nb_inv = 0
-    print(list)
-    for i in range(0, len(list)):
-        for j in range(i + 1, len(list)):
-            if(list[j] > list[i] and list[j] and list[i]):
-                nb_inv += 1
-    if (nb_inv % 2 == 0):
-        sys.stdout.write('Un')
-    print("solvable : " + str(nb_inv))
-    return (nb_inv % 2)
-
-def get_puzzle(nb):
-    cmd = "python generator.py " + str(nb)
-    p = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True)
-    ## Talk with cmd command i.e. read data from stdout and stderr. Store this info in tuple ##
-    ## Interact with process: Send data to stdin. Read data from stdout and stderr, until end-of-file is reached. Wait for process to terminate. The optional input argument should be a string to be sent to the child process, or None, if no data should be sent to the child.
-    (output, err) = p.communicate()
-    ## Wait for cmd to terminate. Get return returncode ##
-    p_status = p.wait()
-
-    # find if solvable
-    count = 0
-    s = ""
-    for line in output.splitlines():
-        count = count + 1
-        if (count == 1):
-            sys.stdout.write(line)
-        if (count > 2):
-            s += str(line) + " "
-
-    tab = []
-    tab = s.split()
-    if (my_resolvable(s.split()) == 1):
-        exit
-    tab = map(int, tab)
-    print tab
-    # my_resolvable(tab)
-    return tab
-# distance de manathan
-def distance(table):
-    dist = 0
-    # tableau a changer par rapport a la normal n-puzzle
-    goal = range(1, int((len(table))))
-    goal.append(0)
-    # print goal
-    # printtab(goal)
-    # taille du table
-    nsize = int(sqrt(len(table)))
-    # taille au carre
-
-    for node in table:
-        if node != 0:
-            gdist = abs(goal.index(node) - table.index(node))
-            jumps = gdist / nsize
-            steps = gdist % nsize
-            dist += jumps + steps
-    return dist
 # mouvements possibles
 def getvalue(tab, key):
-    taillecarre = int(sqrt(len(tab)))
-    longueur = int(len(tab))
-    values = [1, -1, taillecarre, -taillecarre]
-    valid = []
-    for x in values:
-        if 0 <= key + x < longueur:
-            if x == 1 and key in range(taillecarre - 1, longueur, taillecarre):
-                continue
-            if x == -1 and key in range(0, longueur, taillecarre):
-                continue
-            valid.append(x)
-    print valid
-    return valid
+	taillecarre = int(sqrt(len(tab)))
+	longueur = int(len(tab))
+	values = [1, -1, taillecarre, -taillecarre]
+	valid = []
+	for x in values:
+		if 0 <= key + x < longueur:
+			if x == 1 and key in range(taillecarre - 1, longueur, taillecarre):
+				continue
+			if x == -1 and key in range(0, longueur, taillecarre):
+				continue
+			valid.append(x)
+	return valid
 
-# liste des prochains etat possibles
-def expand(tab):
-    expands = {}
-    longueur = len(tab)
-    for key in range(longueur):
-        expands[key] = getvalue(tab, key)
-    pos = tab.index(0) #position du 0 'case vide'
-    moves = expands[pos]
-    # print moves
-    expstat = []
-    for mv in moves:
-        nstate = tab[:]# Affiche toutes les occurences
-        # print nstate
-        (nstate[pos + mv], nstate[pos]) = (nstate[pos], nstate[pos + mv])
-        expstat.append(nstate)
-    # print expstat
-    return expstat
+def children(current, goal, heuristic_nb):
+	expands = {}
+	longueur = len(current[1].grid)
+	for key in range(longueur):
+		expands[key] = getvalue(current[1].grid, key)
+	pos = current[1].grid.index(0)
+	moves = expands[pos]
+	expstat = []
+	children = []
+	for mv in moves:
+		nstate = current[1].grid[:]
+		(nstate[pos + mv], nstate[pos]) = (nstate[pos], nstate[pos + mv])
+		expstat.append(nstate)
+		child = Node(nstate)
+		child.value = heuristic(heuristic_nb, child.grid, goal)
+		child.depth = current[1].depth + 1
+		children.append(Node(nstate))
+	return children
 
+def	heuristic(heuristic_nb, tab, goal):
+	if (int(heuristic_nb) == 1):
+		return hf.manhattan(tab, goal)
+	if (int(heuristic_nb) == 2):
+		return hf.euclidean(tab, goal)
+	if (int(heuristic_nb) == 3):
+		return hf.linearConflict(tab, goal)
+	if (int(heuristic_nb) == 4):
+		return hf.tilesOutOfRowAndColumn(tab, goal)
+	if (int(heuristic_nb) == 5):
+		return hf.misplacedTiles(tab, goal)
 
-    # """Choose one of the possible states."""     # possibilite de prendre le 1er
+def search_grid_in_set(grid, listset):
+	for elem in listset:
+		if elem.grid == grid:
+			return elem.depth
+	return 0
 
-def one_of_poss(tab):
-    # exp_sts = expand(tab)
-    # rand_st = random.choice(exp_sts)
-    # return rand_st
-    rand_st = exp_sts[0]
-    return rand_st
+def search_grid_in_tuple(grid, listset):
+	for elem in listset:
+		if elem[1].grid == grid:
+			return elem[1].depth
+	return 0
 
-    # """Determine the Start State of the Problem."""
+def search_grid_in_set_and_remove(grid, listset):
+	for elem in listset:
+		if elem[1].grid == grid:
+			listset.remove(elem)
+			return elem
+	newNode = Node(grid)
+	return newNode
 
-def start_state(tab, seed = 1000):
-    goal = range(1, int((len(tab))))
-    goal.append(0)
-    start_st = goal[:]
-    for sts in range(seed):
-        start_st = one_of_poss(start_st)
-    return start_st
+def aStar(start, goal, heuristic_nb):
+	openSet = []
+	openSetLen = 0
+	maxNbStatesInMemoryAtTheSameTime = 0
+	maxNbStatesInOpenAtTheSameTime = 0
+	closedset = set()
+	current = Node(start)
+	current.value = heuristic(heuristic_nb , start, goal)
+	current.depth = 1
+	heapq.heappush(openSet, (current.value, current))
+	while openSet:
+		current = heapq.heappop(openSet)
+		if current[1].grid == goal:
+			path = []
+			current = current[1]
+			while current.parent:
+				path.append(current)
+				current = current.parent
+				current = current[1]
+			path.append(current)
+			return path[::-1], maxNbStatesInMemoryAtTheSameTime, maxNbStatesInOpenAtTheSameTime
+		closedset.add(current)
+		for node in children(current, goal, heuristic_nb):
+			if search_grid_in_tuple(node.grid, closedset) > 0:
+				continue
+			nodeDepth = search_grid_in_tuple(node.grid, openSet)
+			if nodeDepth > 0:
+				new_depth = current[1].depth + 1
+				if nodeDepth > new_depth:
+					nodeListed = search_grid_in_set_and_remove(node.grid, openSet)
+					nodeListed[1].depth = new_depth
+					nodeListed[1].parent = current
+					heapq.heappush(openSet, (nodeListed[1].value, nodeListed[1]))
+			else:
+				node.depth = current[1].depth + 1
+				node.value = heuristic(heuristic_nb , node.grid, goal)
+				node.parent = current
+				heapq.heappush(openSet, (node.value, node))
+		openSetLen = len(openSet)
+		openSetTot = len(openSet) + len(closedset)
+		if openSetLen > maxNbStatesInOpenAtTheSameTime:
+			maxNbStatesInOpenAtTheSameTime = openSetLen
+		if openSetTot > maxNbStatesInMemoryAtTheSameTime:
+			maxNbStatesInMemoryAtTheSameTime = openSetTot
+	raise ValueError('No Path Found')
 
-    # """Check if the Goal Reached or Not."""
-def goal_reached(tab):
-    goal = range(1, int((len(tab))))
-    goal.append(0)
-    return tab == goal
-
-def heuritstic(tab):
-    exp_sts = expand(tab)
-    print expand(tab)
-    mdists = []
-    for grid in exp_sts:
-        mdists.append(distance(grid))
-    mdists.sort()
-    short_path = mdists[0]
-    if mdists.count(short_path) > 1:
-        least_paths = [st for st in exp_sts if distance(grid) == short_path]
-        return random.choice(least_paths)
-        # print (least_paths)
-        # return least_paths[0]
-    else:
-        for grid in exp_sts:
-            if distance(grid) == short_path:
-                return grid
-
-def resolution(tab):
-    while not goal_reached(tab):
-        tab = heuritstic(tab)
-        printtab(tab)
-
+def parse_argument(arg):
+	parser = argparse.ArgumentParser()
+	group1 = parser.add_mutually_exclusive_group()
+	group1.add_argument('-l', '--length', default='3', type=int, help='Choose the size of your puzzle between 3 and 70')
+	group1.add_argument('-f', '--file', type=str, help='Name of your file, if this option is selected, ignore: -s/u')
+	group2 = parser.add_mutually_exclusive_group()
+	group2.add_argument('-s', '--solvable', action='store_true', help='Generate only solvable puzzle')
+	group2.add_argument('-u', '--unsolvable', action='store_false', help='Generate only unsolvable puzzle')
+	parser.add_argument('-a', '--anim', action='store_true' , help='Launch an animation of the resolution of the puzzle')
+	return parser.parse_args(arg)
 
 if __name__ == '__main__':
-    print 'N-Puzzle\n' + 8 * '_'
-    # getiing puzzle grid
-    if len(sys.argv) == 2:
-        print sys.argv[1] #verifier que l'a bien un nobre superieur a 2
+	arg = parse_argument(sys.argv[1:])
 
-    print 'Number of arguments:', len(sys.argv), 'arguments.'
-    # print 'Argument List:', str(sys.argv)
-    output = get_puzzle(sys.argv[1])
-    distance(output)
-    printtab(output)
-    goal = printspiral(spiral(int(sys.argv[1])))
-    expand(output)
-    # resolution(output)
+	if (arg.file):
+		try:
+			fd = open(arg.file, "r")
+			parsing = Parsing(fd)
+		except:
+			sys.exit("Error - Openning error")
+		start = parsing.puzzle
+		goal = printspiral(spiral(int(sqrt(len(start)))))
+		if (my_resolvable(parsing, start, goal) == 1):
+			exit
+
+	else:
+		if arg.length < 71 and arg.length > 2:
+			goal = printspiral(spiral(arg.length))
+			solvable = None
+			if (arg.solvable == True):
+				solvable = True
+			elif (arg.unsolvable == False):
+				solvable = False
+			start = get_puzzle(arg.length, goal, solvable)
+		else:
+			sys.exit('Wrong size')
+
+	print('The Goal State should be:')
+	printtab(goal)
+	print('The Starting State is:')
+	printtab(start)
+	heuristic_nb = raw_input("Choose your heuristic_nb: 1 (Manhattan), 2 (Euclidean), 3 (linear conflict), 4 (tiles out of row and column), or 5 (misplaced tiles)\n")
+	try:
+		heuristic_nb = int(heuristic_nb)
+	except:
+		sys.exit("Error - wrong input")
+	if (1 > int(heuristic_nb) or int(heuristic_nb) > 5):
+		sys.exit("Error - You must choose a number between 1 and 5")
+	print('Here it Goes: ...')
+	path, maxInMemory, maxInOpen = aStar(start, goal, heuristic_nb)
+
+	if (arg.anim):
+		for elem in path:
+			for i in range(1, 8000000):
+				pass
+			os.system('clear')
+			printtab(elem.grid)
+	else:
+		for elem in path:
+			printtab(elem.grid)
+	
+	print("Complexity in size: " + str(maxInMemory))
+	print("Complexity in time: " + str(maxInOpen))
+	print("Number of step: " + str(len(path)))

@@ -2,6 +2,7 @@ import subprocess
 import os
 import sys
 from math import sqrt
+from printtab import printtab
 
 def manhattan(tab, goal):
 	dist = 0
@@ -28,24 +29,34 @@ def my_resolvable(list, tab, goal):
 		print("SOLVABLE")
 		return (1)
 	else:
+		print('The Starting State is:')
+		printtab(tab)
 		print("UNSOLVABLE")
 		sys.exit()
 	return (0)
 
-def get_puzzle(nb, goal):
-	cmd = "python generator.py " + str(nb)
+def get_puzzle(nb, goal, s):
+	if (s==None):
+		cmd = "python generator.py " + str(nb)
+	if (s == True):
+		cmd = "python generator.py -s " + str(nb)
+	if (s == False):
+		cmd = "python generator.py -u " + str(nb)
 	p = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True)
 	(output, err) = p.communicate()
 	p_status = p.wait()
 	count = 0
 	s = ""
 	for line in output.splitlines():
+		if count == 0:
+			print(line)
 		count = count + 1
 		if (count > 2):
 			s += str(line) + " "
 	tab = []
 	tab = s.split()
 	tab = map(int, tab)
+
 	if (my_resolvable(s.split(), tab, goal) == 1):
 		exit
 	return tab
